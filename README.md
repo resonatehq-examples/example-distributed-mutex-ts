@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/banner.png" alt="Distributed Mutex — Resonate example" />
+</p>
+
 # Distributed Mutex
 
 Serialized access to a shared resource using Resonate's generator sequencing. Multiple workers compete for exclusive access to a payment gateway — only one at a time gets through. If a worker fails, it retries without affecting others.
