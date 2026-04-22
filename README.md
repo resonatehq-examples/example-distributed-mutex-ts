@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="./assets/banner.png" alt="Distributed Mutex — Resonate example" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/banner-light.png">
+    <img alt="Distributed Mutex — Resonate example" src="./assets/banner-dark.png">
+  </picture>
 </p>
 
 # Distributed Mutex
