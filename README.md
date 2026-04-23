@@ -126,26 +126,14 @@ example-distributed-mutex-ts/
 
 **Lines of code**: ~145 total, ~15 lines of mutex logic.
 
-## Comparison
+## The generator IS the lock
 
-Temporal's `mutex` example requires 6 source files (~220 LOC including tests), a dedicated `lockWorkflow` that manages a signal-based queue, `signalWithStart` for atomic lock creation, dynamic UUID signal names for safe release, `condition()` with timeouts for deadlock prevention, and `continueAsNew` for history management.
+There is no separate lock workflow, no signal-based queue, no dedicated lock/release API. The parent generator iterates over workers and `yield*`s each one sequentially — `yield*` won't advance until the child completes. That ordering IS mutual exclusion; no additional coordination primitive is needed.
 
-Resonate: a for-loop with `yield*`. The generator IS the lock.
+**When this pattern fits**: the common case of "process these N things, one at a time." All holders are known at workflow-start time.
 
-| | Resonate | Temporal |
-|---|---|---|
-| Mutex mechanism | Generator sequencing | Signal-based lock workflow |
-| Lock/release code | 0 LOC (implicit) | ~68 LOC (lockWorkflow) |
-| Concepts required | `yield*` in a loop | Signals, conditions, signalWithStart, continueAsNew |
-| Deadlock prevention | N/A (sequential) | Condition timeout (~5 LOC) |
-| History management | N/A | continueAsNew required |
-| Source files | 2 | 6 |
-| Total LOC | ~145 | ~220 |
-| External dependencies | 1 (`@resonatehq/sdk`) | 6 (5 Temporal + nanoid) |
-
-**Honest trade-off**: Temporal's mutex supports _dynamic_ lock requests — any workflow can request a lock at any time. Resonate's generator approach requires all lock holders to be known upfront (or use a queue pattern). For the common case of "process these N things sequentially," Resonate is dramatically simpler. For truly dynamic distributed locking across independent workflows, you'd use Resonate's promise model (`ctx.promise()`) or an external coordination service.
+**When to reach for something else**: truly dynamic distributed locking — independent workflows requesting a lock at runtime across a cluster. For that case, use Resonate's raw promise model (`ctx.promise()`) to build a lock-request queue, or reach for an external coordination service (etcd, Zookeeper, Redis Redlock).
 
 ## Learn More
 
 - [Resonate documentation](https://docs.resonatehq.io)
-- [Temporal mutex sample](https://github.com/temporalio/samples-typescript/tree/main/mutex)
