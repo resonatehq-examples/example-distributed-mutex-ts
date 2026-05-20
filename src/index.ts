@@ -65,3 +65,5 @@ if (shouldCrash) {
     "\nThe mutex ensured no two workers touched the resource simultaneously.",
   );
 }
+
+resonate.stop();
